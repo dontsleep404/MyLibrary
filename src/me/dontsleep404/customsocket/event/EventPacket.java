@@ -1,14 +1,13 @@
 package me.dontsleep404.customsocket.event;
 
 import me.dontsleep404.customsocket.DClient;
-import me.dontsleep404.customsocket.packet.Packet;
+import me.dontsleep404.customsocket.packet.RawPacket;
 
 public class EventPacket {
 
     private DClient client;
     private EnumEvent event;
-    private Packet packet;
-    private boolean isCancelled = false;
+    private RawPacket packet;
     
     /**
      * Constructs a new EventPacket object with the specified client, event and packet.
@@ -17,7 +16,7 @@ public class EventPacket {
      * @param event the EnumEvent object representing the type of event
      * @param packet the Packet object containing the data for this event
      */
-    public EventPacket(DClient client, EnumEvent event, Packet packet) {
+    public EventPacket(DClient client, EnumEvent event, RawPacket packet) {
         this.event = event;
         this.packet = packet;
         this.client = client;
@@ -37,37 +36,10 @@ public class EventPacket {
      *
      * @return the Packet object containing the data for this event
      */
-    public Packet getPacket() {
+    public RawPacket getPacket() {
         return packet;
-    }
-    
-    /**
-     * Sets the Packet object containing the data for this event.
-     *
-     * @param packet the Packet object containing the data for this event
-     */
-    public void setPacket(Packet packet) {
-        this.packet = packet;
-    }
-    
-    /**
-     * Sets whether this event is cancelled.
-     *
-     * @param cancelled true if this event is cancelled, false otherwise
-     */
-    public void setCancelled(boolean cancelled) {
-        isCancelled = cancelled;
-    }
-    
-    /**
-     * Returns whether this event is cancelled.
-     *
-     * @return true if this event is cancelled, false otherwise
-     */
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-    
+    }   
+
     /**
      * Returns the DClient object associated with this event packet.
      *

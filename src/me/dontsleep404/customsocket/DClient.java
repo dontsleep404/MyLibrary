@@ -5,9 +5,13 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import com.google.gson.Gson;
+
+import me.dontsleep404.customsocket.event.DefaultEventHandle;
 import me.dontsleep404.customsocket.event.EnumEvent;
 import me.dontsleep404.customsocket.event.EventHandle;
 import me.dontsleep404.customsocket.event.EventPacket;
+import me.dontsleep404.customsocket.packet.MessagePacket;
 import me.dontsleep404.customsocket.packet.Packet;
 import me.dontsleep404.customsocket.packet.RawPacket;
 
@@ -28,7 +32,9 @@ public class DClient {
         this.host = host;
         this.port = port;
     }
-
+    public void setEventHandle(EventHandle eventHandle) {
+        this.eventHandle = eventHandle;
+    }
     public boolean connect() {
         try {
             if (socket == null) {
@@ -52,8 +58,15 @@ public class DClient {
             while (true) {
                 try {
                     String message = dataInputStream.readUTF();
-                    System.out.println(message);
-                } catch (Exception e) {
+                    try{
+                        Gson gson = new Gson();
+                        RawPacket rawPacket = gson.fromJson(message, RawPacket.class);
+                        onEvent(new EventPacket(this, EnumEvent.PACKET_RECEIVED, rawPacket));
+                    } catch (Exception e) { // Packet ko hợp lệ                        
+                        continue;
+                    }
+                } catch (Exception e) { // Client bị mất kết nối
+                    disconnect();
                     break;
                 }
             }
@@ -61,7 +74,7 @@ public class DClient {
     }
     public void sendPacket(Packet packet){
         if (eventHandle != null) {
-            eventHandle.handle(new EventPacket(this, EnumEvent.PACKET_SENT, packet));
+            eventHandle.handle(new EventPacket(this, EnumEvent.PACKET_SENT, packet.toRawPacket()));
         }
     }
     public void sendRawPacket(RawPacket rawPacket) {
@@ -72,18 +85,19 @@ public class DClient {
             e.printStackTrace();
         }
     }
-
     public void disconnect() {
         try {
             dataInputStream.close();
             dataOutputStream.close();
             socket.close();
+            onEvent(new EventPacket(this, EnumEvent.DISCONNECT, null));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     public static void main(String[] args) throws Exception{
         DClient client = new DClient("localhost", 8080);
+        client.setEventHandle(new DefaultEventHandle());
         client.connect();
         client.listen();
         Scanner scanner = new Scanner(System.in);
@@ -93,7 +107,7 @@ public class DClient {
                 client.disconnect();
                 break;
             }
-            // client.sendMessage(message);
+            client.sendPacket(new MessagePacket(message));
         }
         scanner.close();
     }

@@ -23,11 +23,11 @@ public abstract class EventHandle {
                 onDisconnect(eventPacket);
                 break;
             case PACKET_RECEIVED:
-                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getClass().getSimpleName()))
+                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     onPacketReceived(eventPacket);
                 break;
             case PACKET_SENT:
-                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getClass().getSimpleName()))
+                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     onSentPacket(eventPacket);
                 break;
         }
