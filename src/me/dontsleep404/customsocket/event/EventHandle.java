@@ -29,14 +29,14 @@ public abstract class EventHandle {
                         && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     if (eventPacket.getPacket()
                             .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
-                        onPacketReceived(eventPacket);
+                        onPacketReceived(eventPacket, getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
                 break;
             case PACKET_SENT:
                 if (eventPacket.getPacket() != null
                         && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     if (eventPacket.getPacket()
                             .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
-                        onSentPacket(eventPacket);
+                        onSentPacket(eventPacket, getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
                 break;
         }
     }
@@ -45,8 +45,8 @@ public abstract class EventHandle {
 
     public abstract void onDisconnect(EventPacket eventPacket);
 
-    public abstract void onPacketReceived(EventPacket eventPacket);
+    public abstract void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass);
 
-    public abstract void onSentPacket(EventPacket eventPacket);
+    public abstract void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass);
 
 }

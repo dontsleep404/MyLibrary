@@ -8,6 +8,7 @@ public class Packet {
         return gson.toJson(this);
     }
     public RawPacket toRawPacket() {
+        if (this.getClass().getSimpleName().equals("RawPacket")) return (RawPacket) this;
         return new RawPacket(this.getClass().getSimpleName(), this.toString());
     }
 }

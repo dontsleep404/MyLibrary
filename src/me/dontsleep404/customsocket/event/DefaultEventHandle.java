@@ -26,12 +26,12 @@ public class DefaultEventHandle extends EventHandle{
     }
 
     @Override
-    public void onPacketReceived(EventPacket eventPacket) {
+    public void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass) {
         System.out.println("Received packet: " + eventPacket.getPacket());
     }
 
     @Override
-    public void onSentPacket(EventPacket eventPacket) {
+    public void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass) {
         System.out.println("Sent packet: " + eventPacket.getPacket());
         eventPacket.getClient().sendRawPacket(eventPacket.getPacket());
     }

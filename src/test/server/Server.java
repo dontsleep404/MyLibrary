@@ -7,6 +7,7 @@ public class Server {
         int port = 25565;
         
         DServer server = new DServer(port);
+        server.setEventHandle(new ServerHandle());
         if (server.listen()){
             System.out.println("Server is listening on port " + port);
         } else {
