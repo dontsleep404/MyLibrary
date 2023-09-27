@@ -1,5 +1,7 @@
 package me.dontsleep404.customsocket.packet;
 
+import com.google.gson.Gson;
+
 public class RawPacket extends Packet{
     private String packetName;
     private String packetData;
@@ -12,5 +14,14 @@ public class RawPacket extends Packet{
     }
     public String getPacketData() {
         return packetData;
+    }
+    public Packet toPacket(Class<? extends Packet> packetClass) {
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(packetData, packetClass);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

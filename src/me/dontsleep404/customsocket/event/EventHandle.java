@@ -11,10 +11,12 @@ public abstract class EventHandle {
     public EventHandle(HashMap<String, Class<? extends Packet>> acceptedPackets) {
         this.acceptedPackets = acceptedPackets;
     }
+
     public HashMap<String, Class<? extends Packet>> getAcceptedPackets() {
         return acceptedPackets;
     }
-    public void handle(EventPacket eventPacket){
+
+    public void handle(EventPacket eventPacket) {
         switch (eventPacket.getEvent()) {
             case CONNECT:
                 onConnect(eventPacket);
@@ -23,18 +25,28 @@ public abstract class EventHandle {
                 onDisconnect(eventPacket);
                 break;
             case PACKET_RECEIVED:
-                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
-                    onPacketReceived(eventPacket);
+                if (eventPacket.getPacket() != null
+                        && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
+                    if (eventPacket.getPacket()
+                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
+                        onPacketReceived(eventPacket);
                 break;
             case PACKET_SENT:
-                if (eventPacket.getPacket() != null && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
-                    onSentPacket(eventPacket);
+                if (eventPacket.getPacket() != null
+                        && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
+                    if (eventPacket.getPacket()
+                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
+                        onSentPacket(eventPacket);
                 break;
         }
     }
+
     public abstract void onConnect(EventPacket eventPacket);
+
     public abstract void onDisconnect(EventPacket eventPacket);
+
     public abstract void onPacketReceived(EventPacket eventPacket);
+
     public abstract void onSentPacket(EventPacket eventPacket);
 
 }

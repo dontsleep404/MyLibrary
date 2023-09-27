@@ -2,7 +2,6 @@ package me.dontsleep404.customsocket;
 
 import java.net.ServerSocket;
 
-import me.dontsleep404.customsocket.event.DefaultEventHandle;
 import me.dontsleep404.customsocket.event.EventHandle;
 
 public class DServer {
@@ -48,10 +47,5 @@ public class DServer {
 
     public void setEventHandle(EventHandle eventHandle) {
         this.eventHandle = eventHandle;
-    }
-    public static void main(String[] args) {
-        DServer server = new DServer(8080);
-        server.setEventHandle(new DefaultEventHandle());
-        server.listen();
     }
 }

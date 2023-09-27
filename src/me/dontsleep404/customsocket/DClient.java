@@ -3,15 +3,12 @@ package me.dontsleep404.customsocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 import com.google.gson.Gson;
 
-import me.dontsleep404.customsocket.event.DefaultEventHandle;
 import me.dontsleep404.customsocket.event.EnumEvent;
 import me.dontsleep404.customsocket.event.EventHandle;
 import me.dontsleep404.customsocket.event.EventPacket;
-import me.dontsleep404.customsocket.packet.MessagePacket;
 import me.dontsleep404.customsocket.packet.Packet;
 import me.dontsleep404.customsocket.packet.RawPacket;
 
@@ -95,21 +92,4 @@ public class DClient {
             e.printStackTrace();
         }
     }
-    public static void main(String[] args) throws Exception{
-        DClient client = new DClient("localhost", 8080);
-        client.setEventHandle(new DefaultEventHandle());
-        client.connect();
-        client.listen();
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            String message = scanner.nextLine();
-            if (message.equalsIgnoreCase("exit")) {
-                client.disconnect();
-                break;
-            }
-            client.sendPacket(new MessagePacket(message));
-        }
-        scanner.close();
-    }
-
 }
