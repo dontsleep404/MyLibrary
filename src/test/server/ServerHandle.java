@@ -1,12 +1,14 @@
 package test.server;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import me.dontsleep404.customsocket.DClient;
 import me.dontsleep404.customsocket.event.EventHandle;
 import me.dontsleep404.customsocket.event.EventPacket;
 import me.dontsleep404.customsocket.packet.Packet;
 public class ServerHandle extends EventHandle{
 
-    
+    public ArrayList<DClient> clients = new ArrayList<DClient>();
 
     public ServerHandle() {
         super(new HashMap<String, Class<? extends Packet>>(){
@@ -16,26 +18,26 @@ public class ServerHandle extends EventHandle{
 
     @Override
     public void onConnect(EventPacket eventPacket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onConnect'");
+        if (clients.contains(eventPacket.getClient())) return;
+        clients.add(eventPacket.getClient());
+        System.out.println("Client connected: " + eventPacket.getClient().hashCode());
     }
 
     @Override
     public void onDisconnect(EventPacket eventPacket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onDisconnect'");
+        if (!clients.contains(eventPacket.getClient())) return;
+        clients.remove(eventPacket.getClient());
+        System.out.println("Client disconnected: " + eventPacket.getClient().hashCode());
     }
 
     @Override
     public void onPacketReceived(EventPacket eventPacket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onPacketReceived'");
+        
     }
 
     @Override
     public void onSentPacket(EventPacket eventPacket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onSentPacket'");
+        
     }
     
 }

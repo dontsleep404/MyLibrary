@@ -16,6 +16,7 @@ public class RawPacket extends Packet{
         return packetData;
     }
     public Packet toPacket(Class<? extends Packet> packetClass) {
+        if (!packetName.equals(packetClass.getSimpleName())) return null;
         try {
             Gson gson = new Gson();
             return gson.fromJson(packetData, packetClass);
