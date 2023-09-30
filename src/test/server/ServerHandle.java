@@ -24,9 +24,10 @@ public class ServerHandle extends EventHandle{
             }
         });
     }
-    public void broadcast(Packet packet){
+    public void broadcast(Packet packet, DClient except){
         for(DClient client : clients){
-            client.sendPacket(packet);
+            if(client == except) continue;
+                client.sendPacket(packet);
         }
     }
     @Override
@@ -40,24 +41,29 @@ public class ServerHandle extends EventHandle{
     public void onDisconnect(EventPacket eventPacket) {
         if (!clients.contains(eventPacket.getClient())) return;
         clients.remove(eventPacket.getClient());
-        broadcast(new PacketDisconnect());
+        broadcast(new PacketDisconnect(), null);
         System.out.println("Client disconnected: " + eventPacket.getClient().hashCode());
     }
 
     @Override
     public void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass) {
         Packet packet = eventPacket.getPacket().toPacket(packetClass);
-        broadcast(eventPacket.getPacket());
+        
         if(packet instanceof PacketSetInfo){
             PacketSetInfo packetSetInfo = (PacketSetInfo) packet;
             System.out.printf("%s: Connected\n", packetSetInfo.getName());
+            broadcast(packetSetInfo, null);
         }
         if(packet instanceof PacketDisconnect){
             System.out.printf("%s: Disconnected\n", eventPacket.getClient().hashCode());
+            broadcast(packet, null);
         }
         if(packet instanceof PacketMessage){
             PacketMessage packetMessage = (PacketMessage) packet;
             System.out.printf("%s: %s\n", eventPacket.getClient().hashCode(), packetMessage.getMessage());
+            if(packetMessage.getType() == PacketMessage.Type.FILE){
+                broadcast(packetMessage, eventPacket.getClient());
+            }
         }
     }
 
