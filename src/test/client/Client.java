@@ -25,7 +25,7 @@ public class Client {
                 client.disconnect();
                 break;
             }
-            PacketMessage packet = new PacketMessage(msg);
+            PacketMessage packet = new PacketMessage(msg, name);
             client.sendPacket(packet);            
         }
         sc.close();

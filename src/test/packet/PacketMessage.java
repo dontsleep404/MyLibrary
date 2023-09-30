@@ -7,13 +7,15 @@ public class PacketMessage extends Packet{
         MESSAGE,
         FILE
     }
+    String name;
     String message;
     Type type;
     String fileName;
     byte[] fileData;
-    public PacketMessage(String message) {
+    public PacketMessage(String message, String name) {
         this.message = message;
         this.type = Type.MESSAGE;
+        this.name = name;
     }
     public PacketMessage(String fileName, byte[] fileData) {
         this.fileName = fileName;
@@ -31,6 +33,9 @@ public class PacketMessage extends Packet{
     }
     public byte[] getFileData(){
         return fileData;
+    }
+    public String getName(){
+        return name;
     }
 }
 
