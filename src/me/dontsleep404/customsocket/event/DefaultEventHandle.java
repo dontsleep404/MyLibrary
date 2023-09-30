@@ -2,6 +2,7 @@ package me.dontsleep404.customsocket.event;
 
 import java.util.HashMap;
 
+import me.dontsleep404.customsocket.DClient;
 import me.dontsleep404.customsocket.packet.MessagePacket;
 import me.dontsleep404.customsocket.packet.Packet;
 
@@ -26,14 +27,14 @@ public class DefaultEventHandle extends EventHandle{
     }
 
     @Override
-    public void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-        System.out.println("Received packet: " + eventPacket.getPacket());
+    public void onPacketReceived(DClient client, Packet packet) {
+        System.out.println("Received packet: " + client);
     }
 
     @Override
-    public void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-        System.out.println("Sent packet: " + eventPacket.getPacket());
-        eventPacket.getClient().sendRawPacket(eventPacket.getPacket());
+    public void onSentPacket(DClient client, Packet packet) {
+        System.out.println("Sent packet: " + packet);
+        client.sendRawPacket(packet.toRawPacket());
     }
     
 }

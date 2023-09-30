@@ -45,25 +45,19 @@ public class ServerHandle extends EventHandle{
     }
 
     @Override
-    public void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-        Packet packet = eventPacket.getPacket().toPacket(packetClass);
-        broadcast(eventPacket.getPacket());
+    public void onPacketReceived(DClient client, Packet packet) {
+        broadcast(packet.toRawPacket());
         if(packet instanceof PacketSetInfo){
             PacketSetInfo packetSetInfo = (PacketSetInfo) packet;
             System.out.printf("%s: Connected\n", packetSetInfo.getName());
         }
         if(packet instanceof PacketDisconnect){
-            System.out.printf("%s: Disconnected\n", eventPacket.getClient().hashCode());
+            System.out.printf("%s: Disconnected\n", client.hashCode());
         }
         if(packet instanceof PacketMessage){
             PacketMessage packetMessage = (PacketMessage) packet;
-            System.out.printf("%s: %s\n", eventPacket.getClient().hashCode(), packetMessage.getMessage());
+            System.out.printf("%s: %s\n", client.hashCode(), packetMessage.getMessage());
         }
-    }
-
-    @Override
-    public void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-        eventPacket.getClient().sendRawPacket(eventPacket.getPacket());
     }
     
 }

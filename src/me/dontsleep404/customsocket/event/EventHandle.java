@@ -2,7 +2,9 @@ package me.dontsleep404.customsocket.event;
 
 import java.util.HashMap;
 
+import me.dontsleep404.customsocket.DClient;
 import me.dontsleep404.customsocket.packet.Packet;
+import me.dontsleep404.customsocket.packet.RawPacket;
 
 public abstract class EventHandle {
 
@@ -28,15 +30,27 @@ public abstract class EventHandle {
                 if (eventPacket.getPacket() != null
                         && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     if (eventPacket.getPacket()
-                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
-                        onPacketReceived(eventPacket, getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
+                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null){
+                                try{
+                                    Packet packet = eventPacket.getPacket().toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
+                                    onPacketReceived(eventPacket.getClient(), packet);
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                        }
                 break;
             case PACKET_SENT:
                 if (eventPacket.getPacket() != null
                         && getAcceptedPackets().containsKey(eventPacket.getPacket().getPacketName()))
                     if (eventPacket.getPacket()
-                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null)
-                        onSentPacket(eventPacket, getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
+                            .toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName())) != null){
+                                try{
+                                    Packet packet = eventPacket.getPacket().toPacket(getAcceptedPackets().get(eventPacket.getPacket().getPacketName()));
+                                    onSentPacket(eventPacket.getClient(), packet);
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
                 break;
         }
     }
@@ -45,8 +59,11 @@ public abstract class EventHandle {
 
     public abstract void onDisconnect(EventPacket eventPacket);
 
-    public abstract void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass);
+    public abstract void onPacketReceived(DClient client, Packet packet);
 
-    public abstract void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass);
+    public void onSentPacket(DClient client, Packet packet){
+        if(packet instanceof RawPacket) client.sendRawPacket((RawPacket) packet);
+        else client.sendRawPacket(packet.toRawPacket());
+    }
 
 }
