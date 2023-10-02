@@ -1,5 +1,6 @@
 package test.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.*;
@@ -11,6 +12,7 @@ import me.dontsleep404.customsocket.packet.Packet;
 import test.packet.PacketConnect;
 import test.packet.PacketDisconnect;
 import test.packet.PacketMessage;
+import test.packet.PacketMessageCrypt;
 import test.packet.PacketSetInfo;
 
 import java.awt.*;
@@ -26,8 +28,8 @@ public class UI extends JFrame implements ActionListener {
     JTextArea taMessages;
     JTabbedPane tabbedPane;
     JTextField tfInput;
-    JButton btnSend, btnExit, btnSendFile; // Thêm nút gửi tệp tin
-    private JFileChooser fileChooser; // Thêm JFileChooser
+    JButton btnSend, btnExit, btnSendFile, btnSendEncrypt;
+    private JFileChooser fileChooser;
     private DClient client;
     String username;
     public UI(String host, int port, String username) throws Exception {
@@ -38,14 +40,15 @@ public class UI extends JFrame implements ActionListener {
 
 
         client = new DClient("localhost", 25565);
-        client.setEventHandle(new EventHandle(new HashMap<String, Class<? extends Packet>>(){
-                    {
-                        put("PacketMessage", PacketMessage.class);
-                        put("PacketSetInfo", PacketSetInfo.class);
-                        put("PacketConnect", PacketConnect.class);
-                        put("PacketDisconnect", PacketDisconnect.class);
-                    }
-                }){
+        client.setEventHandle(new EventHandle(new ArrayList<Class<? extends Packet>>(){
+            {
+                add(PacketMessage.class);
+                add(PacketSetInfo.class);
+                add(PacketConnect.class);
+                add(PacketDisconnect.class);
+                add(PacketMessageCrypt.class);
+            }
+        }){
 
             public HashMap<DClient, String> clients = new HashMap<DClient, String>();
 
@@ -59,21 +62,30 @@ public class UI extends JFrame implements ActionListener {
             public void onDisconnect(EventPacket eventPacket) {
                 taMessages.append("Disconnected from server\n");
             }
-
             @Override
-            public void onPacketReceived(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-                Packet packet = eventPacket.getPacket().toPacket(packetClass);
+            public void onSentPacket(DClient client, Packet packet) {
+                if(packet instanceof PacketMessageCrypt){
+                    ((PacketMessageCrypt) packet).encryptWithKey();
+                    System.out.println(packet);
+                }
+                super.onSentPacket(client, packet);
+            }
+            @Override
+            public void onPacketReceived(DClient client, Packet packet) {
                 if(packet instanceof PacketSetInfo){
                     PacketSetInfo packetSetInfo = (PacketSetInfo) packet;
-                    clients.put(eventPacket.getClient(), packetSetInfo.getName());
+                    clients.put(client, packetSetInfo.getName());
                     taMessages.append(packetSetInfo.getName() + ": Connected\n");
                 }
                 if(packet instanceof PacketDisconnect){
-                    String name = clients.get(eventPacket.getClient());
+                    String name = clients.get(client);
                     taMessages.append(name + ": Disconnected\n");
-                    clients.remove(eventPacket.getClient());
+                    clients.remove(client);
                 }
                 if(packet instanceof PacketMessage){
+                    if(packet instanceof PacketMessageCrypt){
+                        ((PacketMessageCrypt) packet).decryptWithKey();
+                    }
                     PacketMessage packetMessage = (PacketMessage) packet;
                     if(packetMessage.getType() == PacketMessage.Type.MESSAGE){
                         taMessages.append(packetMessage.getName() + ": " + packetMessage.getMessage() + "\n");
@@ -89,11 +101,6 @@ public class UI extends JFrame implements ActionListener {
                         }
                     }
                 }
-            }
-
-            @Override
-            public void onSentPacket(EventPacket eventPacket, Class<? extends Packet> packetClass) {
-                eventPacket.getClient().sendRawPacket(eventPacket.getPacket());
             }
             
         }
@@ -113,6 +120,7 @@ public class UI extends JFrame implements ActionListener {
         btnSend = new JButton("Send");
         btnExit = new JButton("Exit");
         btnSendFile = new JButton("Send File"); // Nút gửi tệp tin
+        btnSendEncrypt = new JButton("Send Encrypt");
         taMessages = new JTextArea();
         taMessages.setRows(10);
         taMessages.setColumns(50);
@@ -124,10 +132,12 @@ public class UI extends JFrame implements ActionListener {
         JPanel bp = new JPanel(new FlowLayout());
         bp.add(tfInput);
         bp.add(btnSend);
+        bp.add(btnSendEncrypt);
         bp.add(btnSendFile); // Thêm nút gửi tệp tin vào giao diện
         bp.add(btnExit);
         add(bp, "South");
         btnSend.addActionListener(this);
+        btnSendEncrypt.addActionListener(this);
         btnSendFile.addActionListener(this); // Xử lý sự kiện cho nút gửi tệp tin
         btnExit.addActionListener(this);
         setSize(500, 300);
@@ -150,6 +160,10 @@ public class UI extends JFrame implements ActionListener {
                 File selectedFile = fileChooser.getSelectedFile();
                 sendFile(selectedFile.getAbsolutePath());
             }
+        } else if (evt.getSource() == btnSendEncrypt) {
+            String message = tfInput.getText().trim();
+            client.sendPacket(new PacketMessageCrypt(message, username));
+            tfInput.setText("");
         }
     }
 

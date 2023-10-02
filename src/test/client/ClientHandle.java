@@ -1,5 +1,6 @@
 package test.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import me.dontsleep404.customsocket.DClient;
@@ -16,12 +17,12 @@ public class ClientHandle extends EventHandle{
     public HashMap<DClient, String> clients = new HashMap<DClient, String>();
 
     public ClientHandle() {
-        super(new HashMap<String, Class<? extends Packet>>(){
+        super(new ArrayList<Class<? extends Packet>>(){
             {
-                put("PacketMessage", PacketMessage.class);
-                put("PacketSetInfo", PacketSetInfo.class);
-                put("PacketConnect", PacketConnect.class);
-                put("PacketDisconnect", PacketDisconnect.class);
+                add(PacketMessage.class);
+                add(PacketSetInfo.class);
+                add(PacketConnect.class);
+                add(PacketDisconnect.class);
             }
         });
     }

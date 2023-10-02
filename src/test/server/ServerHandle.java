@@ -1,6 +1,5 @@
 package test.server;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import me.dontsleep404.customsocket.DClient;
 import me.dontsleep404.customsocket.event.EventHandle;
@@ -9,18 +8,20 @@ import me.dontsleep404.customsocket.packet.Packet;
 import test.packet.PacketConnect;
 import test.packet.PacketDisconnect;
 import test.packet.PacketMessage;
+import test.packet.PacketMessageCrypt;
 import test.packet.PacketSetInfo;
 public class ServerHandle extends EventHandle{
 
     public ArrayList<DClient> clients = new ArrayList<DClient>();
 
     public ServerHandle() {
-        super(new HashMap<String, Class<? extends Packet>>(){
+        super(new ArrayList<Class<? extends Packet>>(){
             {
-                put("PacketMessage", PacketMessage.class);
-                put("PacketSetInfo", PacketSetInfo.class);
-                put("PacketConnect", PacketConnect.class);
-                put("PacketDisconnect", PacketDisconnect.class);
+                add(PacketMessage.class);
+                add(PacketSetInfo.class);
+                add(PacketConnect.class);
+                add(PacketDisconnect.class);
+                add(PacketMessageCrypt.class);
             }
         });
     }
@@ -51,7 +52,6 @@ public class ServerHandle extends EventHandle{
         if(packet instanceof PacketSetInfo){
             PacketSetInfo packetSetInfo = (PacketSetInfo) packet;
             System.out.printf("%s: Connected\n", packetSetInfo.getName());
-            broadcast(packetSetInfo, null);
         }
         if(packet instanceof PacketDisconnect){
             System.out.printf("%s: Disconnected\n", client.hashCode());

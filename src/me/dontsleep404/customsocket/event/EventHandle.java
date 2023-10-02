@@ -1,5 +1,6 @@
 package me.dontsleep404.customsocket.event;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import me.dontsleep404.customsocket.DClient;
@@ -13,7 +14,12 @@ public abstract class EventHandle {
     public EventHandle(HashMap<String, Class<? extends Packet>> acceptedPackets) {
         this.acceptedPackets = acceptedPackets;
     }
-
+    public EventHandle(ArrayList<Class<? extends Packet>> acceptedPackets) {
+        this.acceptedPackets = new HashMap<String, Class<? extends Packet>>();
+        for(Class<? extends Packet> packet : acceptedPackets){
+            this.acceptedPackets.put(packet.getSimpleName(), packet);
+        }
+    }
     public HashMap<String, Class<? extends Packet>> getAcceptedPackets() {
         return acceptedPackets;
     }
