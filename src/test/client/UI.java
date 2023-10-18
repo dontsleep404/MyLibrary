@@ -32,15 +32,26 @@ public class UI extends JFrame implements ActionListener {
     private JFileChooser fileChooser;
     private DClient client;
     String username;
+
     public UI(String host, int port, String username) throws Exception {
         super(username);
         this.username = username;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         buildInterface();
-
-
         client = new DClient("localhost", 25565);
-        client.setEventHandle(new EventHandle(new ArrayList<Class<? extends Packet>>(){
+        client.setEventHandle(eventHandle());
+        if (client.connect()) {
+            client.listen();
+            PacketSetInfo packet = new PacketSetInfo(username);
+            client.sendPacket(packet);
+        } else {
+            taMessages.append("Failed to connect to server\n");
+        }
+
+    }
+
+    public EventHandle eventHandle() {
+        return new EventHandle(new ArrayList<Class<? extends Packet>>() {
             {
                 add(PacketMessage.class);
                 add(PacketSetInfo.class);
@@ -48,10 +59,8 @@ public class UI extends JFrame implements ActionListener {
                 add(PacketDisconnect.class);
                 add(PacketMessageCrypt.class);
             }
-        }){
-
+        }) {
             public HashMap<DClient, String> clients = new HashMap<DClient, String>();
-
 
             @Override
             public void onConnect(EventPacket eventPacket) {
@@ -62,35 +71,37 @@ public class UI extends JFrame implements ActionListener {
             public void onDisconnect(EventPacket eventPacket) {
                 taMessages.append("Disconnected from server\n");
             }
+
             @Override
             public void onSentPacket(DClient client, Packet packet) {
-                if(packet instanceof PacketMessageCrypt){
+                if (packet instanceof PacketMessageCrypt) {
                     ((PacketMessageCrypt) packet).encryptWithKey();
                     System.out.println(packet);
                 }
                 super.onSentPacket(client, packet);
             }
+
             @Override
             public void onPacketReceived(DClient client, Packet packet) {
-                if(packet instanceof PacketSetInfo){
+                if (packet instanceof PacketSetInfo) {
                     PacketSetInfo packetSetInfo = (PacketSetInfo) packet;
                     clients.put(client, packetSetInfo.getName());
                     taMessages.append(packetSetInfo.getName() + ": Connected\n");
                 }
-                if(packet instanceof PacketDisconnect){
+                if (packet instanceof PacketDisconnect) {
                     String name = clients.get(client);
                     taMessages.append(name + ": Disconnected\n");
                     clients.remove(client);
                 }
-                if(packet instanceof PacketMessage){
-                    if(packet instanceof PacketMessageCrypt){
+                if (packet instanceof PacketMessage) {
+                    if (packet instanceof PacketMessageCrypt) {
                         ((PacketMessageCrypt) packet).decryptWithKey();
                     }
                     PacketMessage packetMessage = (PacketMessage) packet;
-                    if(packetMessage.getType() == PacketMessage.Type.MESSAGE){
+                    if (packetMessage.getType() == PacketMessage.Type.MESSAGE) {
                         taMessages.append(packetMessage.getName() + ": " + packetMessage.getMessage() + "\n");
                     }
-                    if(packetMessage.getType() == PacketMessage.Type.FILE){
+                    if (packetMessage.getType() == PacketMessage.Type.FILE) {
                         try {
                             FileOutputStream fileOutputStream = new FileOutputStream(packetMessage.getFileName());
                             fileOutputStream.write(packetMessage.getFileData());
@@ -102,17 +113,7 @@ public class UI extends JFrame implements ActionListener {
                     }
                 }
             }
-            
-        }
-        );
-        if(client.connect()){
-            client.listen();
-            PacketSetInfo packet = new PacketSetInfo(username);
-            client.sendPacket(packet);
-        }else{
-            taMessages.append("Failed to connect to server\n");
-        }
-        
+        };
     }
 
     public void buildInterface() {
